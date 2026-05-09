@@ -14,18 +14,27 @@ import java.util.*;
 @Table(name = "usuarios")
 public class Usuario implements UserDetails, Serializable {
     private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long idUsuario;
+
+    @Column(name = "publicId", nullable = false, unique = true, updatable = false)
+    private UUID publicId;
+
     @Column(name = "email", length = 100, nullable = false)
     private String email;
+
     @Column(name = "senha", length = 100, nullable = false)
     private String senha;
+
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "usuarioRoles", joinColumns = @JoinColumn(name = "idUsuario"))
     @Column(name = "roles", nullable = false)
     private Set<Role> roles = new HashSet<>();
+
+    private Boolean ativo;
 
     public Usuario() {
     }
@@ -43,12 +52,31 @@ public class Usuario implements UserDetails, Serializable {
         this.roles = roles;
     }
 
+    @PrePersist
+    public void prePersist() {
+        if (this.publicId == null) {
+            this.publicId = UUID.randomUUID();
+        }
+
+        if (this.ativo == null) {
+            this.ativo = true;
+        }
+    }
+
     public Long getIdUsuario() {
         return idUsuario;
     }
 
     public void setIdUsuario(Long idUsuario) {
         this.idUsuario = idUsuario;
+    }
+
+    public UUID getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(UUID publicId) {
+        this.publicId = publicId;
     }
 
     public Set<Role> getRoles() {
@@ -124,6 +152,6 @@ public class Usuario implements UserDetails, Serializable {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return Boolean.TRUE.equals(this.ativo);
     }
 }
