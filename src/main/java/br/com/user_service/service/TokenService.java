@@ -7,10 +7,11 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TokenService {
@@ -22,8 +23,12 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             String token = JWT.create()
                     .withIssuer("user-service") //nome da aplicação
-                    .withSubject(usuario.getUsername()) //quem solicitou o token
-                    .withExpiresAt(genExpirationDate(usuario.getDuracaoToken())) //tempo de expiração
+                    .withJWTId(UUID.randomUUID().toString()) //id do token
+                    .withIssuedAt(Instant.now()) //quando o token foi gerado
+                    .withExpiresAt(genExpirationDate(usuario.getDuracaoToken())) //tempo de expiração do token
+                    .withSubject(usuario.getPublicId().toString()) //quem solicitou o token
+                    .withClaim("roles", List.of(usuario.getRoles())) //permissoes do usuario
+                    .withClaim("email", usuario.getEmail()) //email do usuario
                     .sign(algorithm); //assinatura
             return token;
         } catch (JWTCreationException exception) {
