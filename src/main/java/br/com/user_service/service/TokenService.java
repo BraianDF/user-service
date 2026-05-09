@@ -1,5 +1,6 @@
 package br.com.user_service.service;
 
+import br.com.user_service.enums.Role;
 import br.com.user_service.model.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class TokenService {
@@ -27,8 +30,7 @@ public class TokenService {
                     .withIssuedAt(Instant.now()) //quando o token foi gerado
                     .withExpiresAt(genExpirationDate(usuario.getDuracaoToken())) //tempo de expiração do token
                     .withSubject(usuario.getPublicId().toString()) //quem solicitou o token
-                    .withClaim("roles", List.of(usuario.getRoles())) //permissoes do usuario
-                    .withClaim("email", usuario.getEmail()) //email do usuario
+                    .withClaim("roles", usuario.getRoles().stream().map(Role::name).toList()) //permissoes do usuario
                     .sign(algorithm); //assinatura
             return token;
         } catch (JWTCreationException exception) {
