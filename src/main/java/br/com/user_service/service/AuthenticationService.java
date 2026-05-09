@@ -35,7 +35,7 @@ public class AuthenticationService {
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((Usuario) auth.getPrincipal());
-        return new LoginResponseDTO(token, ((Usuario) auth.getPrincipal()).getRoles());
+        return new LoginResponseDTO(token);
     }
 
     @Transactional
