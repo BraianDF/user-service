@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UsuarioMapper {
 
-    public UsuarioDetalhesResponseDTO toResponseDetalhesDTO(Usuario usuario) {
+    public UsuarioDetalhesResponseDTO toDetalhesResponseDTO(Usuario usuario) {
         if (usuario == null) {
             return null;
         }
@@ -20,7 +20,7 @@ public class UsuarioMapper {
         );
     }
 
-    public UsuarioListarResponseDTO toResponseListarDTO(Usuario usuario) {
+    public UsuarioListarResponseDTO toListarResponseDTO(Usuario usuario) {
         if (usuario == null) {
             return null;
         }
