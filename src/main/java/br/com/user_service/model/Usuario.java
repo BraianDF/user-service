@@ -111,6 +111,14 @@ public class Usuario implements UserDetails, Serializable {
         this.roles.remove(role);
     }
 
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
     public long getDuracaoToken() {
         return roles.stream()
                 .mapToLong(Role::getExpirationMinutes)
