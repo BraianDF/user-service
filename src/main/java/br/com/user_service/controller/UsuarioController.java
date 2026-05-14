@@ -50,10 +50,6 @@ public class UsuarioController {
 
     @GetMapping("/me")
     public ResponseEntity<UsuarioDetalhesResponseDTO> buscar(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("Usuário não autenticado.");
-        }
-
         UsuarioDetalhesResponseDTO response = service.buscar(authentication);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

@@ -10,6 +10,7 @@ import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public UsuarioDetalhesResponseDTO buscar(Authentication authentication) {
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
         return mapper.toDetalhesResponseDTO(usuario);
     }
 
@@ -74,5 +75,12 @@ public class UsuarioService {
             throw new RecursoNaoEncontradoException("Usuário com ID " + idUsuario + " não encontrado.");
         }
         return usuario;
+    }
+
+    private Usuario buscarUsuarioAutenticado(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AuthenticationCredentialsNotFoundException("Usuário não autenticado.");
+        }
+        return (Usuario) authentication.getPrincipal();
     }
 }
