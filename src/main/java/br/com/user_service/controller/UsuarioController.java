@@ -1,8 +1,10 @@
 package br.com.user_service.controller;
 
+import br.com.user_service.dto.request.UsuarioCadastrarRequestDTO;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
 import br.com.user_service.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -12,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -23,6 +25,13 @@ public class UsuarioController {
 
     public UsuarioController(UsuarioService service) {
         this.service = service;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    public ResponseEntity cadastrar(@RequestBody @Valid UsuarioCadastrarRequestDTO dto) {
+        service.cadastrar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Usuário cadastrado com sucesso."));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

@@ -1,17 +1,19 @@
 package br.com.user_service.service;
 
+import br.com.user_service.dto.request.UsuarioCadastrarRequestDTO;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
 import br.com.user_service.exceptions.RecursoNaoEncontradoException;
+import br.com.user_service.exceptions.RegraNegocioException;
 import br.com.user_service.mapper.UsuarioMapper;
 import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.UUID;
 
 @Service
@@ -23,6 +25,19 @@ public class UsuarioService {
     public UsuarioService(UsuarioMapper mapper, UsuarioRepository repository) {
         this.mapper = mapper;
         this.repository = repository;
+    }
+
+    @Transactional
+    public void cadastrar(UsuarioCadastrarRequestDTO dto) {
+
+        if (repository.existsByEmail(dto.email())) {
+            throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
+        }
+
+        String encryptedPassword = new BCryptPasswordEncoder().encode(dto.senha());
+
+        Usuario usuario = new Usuario(dto.email(), encryptedPassword, dto.roles());
+        repository.save(usuario);
     }
 
     @Transactional(readOnly = true)

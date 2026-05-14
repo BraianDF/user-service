@@ -2,7 +2,6 @@ package br.com.user_service.service;
 
 import br.com.user_service.dto.request.LoginRequestDTO;
 import br.com.user_service.dto.response.LoginResponseDTO;
-import br.com.user_service.dto.request.RegisterPublicRequestDTO;
 import br.com.user_service.dto.request.RegisterRequestDTO;
 import br.com.user_service.enums.Role;
 import br.com.user_service.exceptions.RegraNegocioException;
@@ -39,7 +38,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public void register(RegisterPublicRequestDTO dto) {
+    public void register(RegisterRequestDTO dto) {
 
         if (repository.existsByEmail(dto.email())) {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
@@ -50,19 +49,5 @@ public class AuthenticationService {
         Usuario usuario = new Usuario(dto.email(), encryptedPassword, Set.of(Role.USER));
         repository.save(usuario);
     }
-
-    @Transactional
-    public void register(RegisterRequestDTO dto) {
-
-        if (repository.existsByEmail(dto.email())) {
-            throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
-        }
-
-        String encryptedPassword = new BCryptPasswordEncoder().encode(dto.senha());
-
-        Usuario usuario = new Usuario(dto.email(), encryptedPassword, dto.roles());
-        repository.save(usuario);
-    }
-
 
 }
