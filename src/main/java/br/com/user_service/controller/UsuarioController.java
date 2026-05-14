@@ -54,5 +54,12 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{idUsuario}")
+    public ResponseEntity<Void> excluir(@PathVariable UUID idUsuario) {
+        service.excluir(idUsuario);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 
 }

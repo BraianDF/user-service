@@ -62,6 +62,12 @@ public class UsuarioService {
         return mapper.toDetalhesResponseDTO(usuario);
     }
 
+    @Transactional
+    public void excluir(UUID idUsuario) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        repository.delete(usuario);
+    }
+
     private Usuario buscarUsuarioPorId(UUID idUsuario) {
         Usuario usuario = repository.findByPublicId(idUsuario);
         if (usuario == null) {
