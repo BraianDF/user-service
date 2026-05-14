@@ -43,14 +43,18 @@ public class UsuarioController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{idUsuario}")
-    public ResponseEntity<UsuarioDetalhesResponseDTO> buscarPorId(@PathVariable UUID idUsuario) {
-        UsuarioDetalhesResponseDTO response = service.buscarPorId(idUsuario);
+    public ResponseEntity<UsuarioDetalhesResponseDTO> buscar(@PathVariable UUID idUsuario) {
+        UsuarioDetalhesResponseDTO response = service.buscar(idUsuario);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UsuarioDetalhesResponseDTO> buscarPorUsuario(Authentication authentication) {
-        UsuarioDetalhesResponseDTO response = service.buscarPorUsuario(authentication);
+    public ResponseEntity<UsuarioDetalhesResponseDTO> buscar(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Usuário não autenticado.");
+        }
+
+        UsuarioDetalhesResponseDTO response = service.buscar(authentication);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

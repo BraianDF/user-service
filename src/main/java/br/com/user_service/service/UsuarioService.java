@@ -51,13 +51,13 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public UsuarioDetalhesResponseDTO buscarPorId(UUID idUsuario) {
+    public UsuarioDetalhesResponseDTO buscar(UUID idUsuario) {
         Usuario usuario = buscarUsuarioPorId(idUsuario);
         return mapper.toDetalhesResponseDTO(usuario);
     }
 
     @Transactional(readOnly = true)
-    public UsuarioDetalhesResponseDTO buscarPorUsuario(Authentication authentication) {
+    public UsuarioDetalhesResponseDTO buscar(Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         return mapper.toDetalhesResponseDTO(usuario);
     }
