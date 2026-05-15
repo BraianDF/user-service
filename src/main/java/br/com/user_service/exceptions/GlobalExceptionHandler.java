@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -210,6 +211,17 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiError> handleDisabledException(DisabledException ex) {
+        ApiError error = new ApiError(
+                HttpStatus.FORBIDDEN.value(),
+                "Usuário desabilitado",
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
 }

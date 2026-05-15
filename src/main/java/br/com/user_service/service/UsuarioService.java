@@ -1,6 +1,7 @@
 package br.com.user_service.service;
 
 import br.com.user_service.dto.request.UsuarioAtualizarEmailRequestDTO;
+import br.com.user_service.dto.request.UsuarioAtualizarStatusRequestDTO;
 import br.com.user_service.dto.request.UsuarioCadastrarRequestDTO;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
@@ -17,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -85,6 +88,33 @@ public class UsuarioService {
         return mapper.toDetalhesResponseDTO(atualizarEmail(usuario, dto));
     }
 
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarStatus(UUID idUsuario, UsuarioAtualizarStatusRequestDTO dto) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        return mapper.toDetalhesResponseDTO(atualizarStatus(usuario, dto));
+    }
+
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarStatus(Authentication authentication, UsuarioAtualizarStatusRequestDTO dto) {
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+        return mapper.toDetalhesResponseDTO(atualizarStatus(usuario, dto));
+    }
+
+    private Usuario buscarUsuarioPorId(UUID idUsuario) {
+        Usuario usuario = repository.findByPublicId(idUsuario);
+        if (usuario == null) {
+            throw new RecursoNaoEncontradoException("Usuário com ID " + idUsuario + " não encontrado.");
+        }
+        return usuario;
+    }
+
+    private Usuario buscarUsuarioAutenticado(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AuthenticationCredentialsNotFoundException("Usuário não autenticado.");
+        }
+        return (Usuario) authentication.getPrincipal();
+    }
+
     private Usuario atualizarEmail(Usuario usuario, UsuarioAtualizarEmailRequestDTO dto) {
         if (dto.email() == null || dto.email().isBlank()) {
             throw new RegraNegocioException("Email é obrigatório.");
@@ -103,18 +133,17 @@ public class UsuarioService {
         return repository.save(usuario);
     }
 
-    private Usuario buscarUsuarioPorId(UUID idUsuario) {
-        Usuario usuario = repository.findByPublicId(idUsuario);
-        if (usuario == null) {
-            throw new RecursoNaoEncontradoException("Usuário com ID " + idUsuario + " não encontrado.");
+    private Usuario atualizarStatus(Usuario usuario, UsuarioAtualizarStatusRequestDTO dto) {
+        if (dto.status() == null) {
+            throw new RegraNegocioException("Status é obrigatório.");
         }
-        return usuario;
-    }
 
-    private Usuario buscarUsuarioAutenticado(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new AuthenticationCredentialsNotFoundException("Usuário não autenticado.");
+        if (Objects.equals(usuario.getStatus(), dto.status())) {
+            return usuario;
         }
-        return (Usuario) authentication.getPrincipal();
+
+        usuario.setStatus(dto.status());
+
+        return repository.save(usuario);
     }
 }

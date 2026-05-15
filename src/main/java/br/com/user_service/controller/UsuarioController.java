@@ -1,6 +1,7 @@
 package br.com.user_service.controller;
 
 import br.com.user_service.dto.request.UsuarioAtualizarEmailRequestDTO;
+import br.com.user_service.dto.request.UsuarioAtualizarStatusRequestDTO;
 import br.com.user_service.dto.request.UsuarioCadastrarRequestDTO;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
@@ -73,6 +74,20 @@ public class UsuarioController {
         UsuarioDetalhesResponseDTO response = service.atualizarEmail(authentication, dto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{idUsuario}/status")
+    public ResponseEntity<UsuarioDetalhesResponseDTO> atualizarStatus(@PathVariable UUID idUsuario, @RequestBody @Valid UsuarioAtualizarStatusRequestDTO dto) {
+        UsuarioDetalhesResponseDTO response = service.atualizarStatus(idUsuario, dto);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PatchMapping("/me/status")
+    public ResponseEntity<UsuarioDetalhesResponseDTO> atualizarStatus(Authentication authentication, @RequestBody @Valid UsuarioAtualizarStatusRequestDTO dto) {
+        UsuarioDetalhesResponseDTO response = service.atualizarStatus(authentication, dto);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
 
 }

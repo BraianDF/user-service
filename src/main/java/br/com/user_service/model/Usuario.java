@@ -35,7 +35,8 @@ public class Usuario implements UserDetails, Serializable {
     @Column(name = "roles", nullable = false)
     private Set<Role> roles = new HashSet<>();
 
-    private Boolean ativo;
+    @Column(name = "status")
+    private Boolean status;
 
     public Usuario() {
     }
@@ -59,8 +60,8 @@ public class Usuario implements UserDetails, Serializable {
             this.publicId = UUID.randomUUID();
         }
 
-        if (this.ativo == null) {
-            this.ativo = true;
+        if (this.status == null) {
+            this.status = true;
         }
     }
 
@@ -112,12 +113,12 @@ public class Usuario implements UserDetails, Serializable {
         this.roles.remove(role);
     }
 
-    public Boolean getAtivo() {
-        return ativo;
+    public Boolean getStatus() {
+        return status;
     }
 
-    public void setAtivo(Boolean ativo) {
-        this.ativo = ativo;
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
     public long getDuracaoToken() {
@@ -161,6 +162,6 @@ public class Usuario implements UserDetails, Serializable {
 
     @Override
     public boolean isEnabled() {
-        return Boolean.TRUE.equals(this.ativo);
+        return Boolean.TRUE.equals(this.status);
     }
 }

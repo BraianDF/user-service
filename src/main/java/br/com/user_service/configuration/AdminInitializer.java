@@ -29,16 +29,33 @@ public class AdminInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        if (repository.existsByEmail(email)) {
-            System.out.println("Admin já foi criado anteriormente.");
+        Usuario usuario = repository.findByEmail(email);
+
+        if (usuario == null) {
+            criarAdmin();
             return;
         }
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(senha);
+        System.out.println("USER-SERVICE: Admin criado anteriormente.");
 
-        Usuario usuario = new Usuario(email, encryptedPassword, Set.of(Role.ADMIN));
+        if (usuario.getStatus()) {
+            System.out.println("USER-SERVICE: Admin está ativo.");
+            return;
+        }
+
+        usuario.setStatus(true);
         repository.save(usuario);
 
-        System.out.println("Admin criado com sucesso.");
+        System.out.println("USER-SERVICE: Admin ativado.");
+    }
+
+    private void criarAdmin() {
+        String encryptedPassword = new BCryptPasswordEncoder().encode(senha);
+
+        Usuario novoUsuario = new Usuario(email, encryptedPassword, Set.of(Role.ADMIN));
+
+        repository.save(novoUsuario);
+
+        System.out.println("USER-SERVICE: Admin criado com sucesso.");
     }
 }

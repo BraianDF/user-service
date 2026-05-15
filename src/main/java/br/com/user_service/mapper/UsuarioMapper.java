@@ -16,7 +16,7 @@ public class UsuarioMapper {
             usuario.getPublicId(),
             usuario.getEmail(),
             usuario.getRoles(),
-            usuario.getAtivo()
+            usuario.getStatus()
         );
     }
 
@@ -27,7 +27,7 @@ public class UsuarioMapper {
         return new UsuarioListarResponseDTO(
                 usuario.getPublicId(),
                 usuario.getEmail(),
-                usuario.getAtivo()
+                usuario.getStatus()
         );
     }
 }

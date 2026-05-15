@@ -8,6 +8,6 @@ public record UsuarioDetalhesResponseDTO(
         UUID idUsuario,
         String email,
         Set<Role> roles,
-        Boolean ativo
+        Boolean status
 ) {
 }
