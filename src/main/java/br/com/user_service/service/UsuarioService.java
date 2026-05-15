@@ -1,8 +1,6 @@
 package br.com.user_service.service;
 
-import br.com.user_service.dto.request.UsuarioAtualizarEmailRequestDTO;
-import br.com.user_service.dto.request.UsuarioAtualizarStatusRequestDTO;
-import br.com.user_service.dto.request.UsuarioCadastrarRequestDTO;
+import br.com.user_service.dto.request.*;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
 import br.com.user_service.exceptions.RecursoNaoEncontradoException;
@@ -14,8 +12,10 @@ import br.com.user_service.utils.TextoUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +27,12 @@ public class UsuarioService {
 
     private final UsuarioMapper mapper;
     private final UsuarioRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioMapper mapper, UsuarioRepository repository) {
+    public UsuarioService(UsuarioMapper mapper, UsuarioRepository repository, PasswordEncoder passwordEncoder) {
         this.mapper = mapper;
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -40,7 +42,7 @@ public class UsuarioService {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
         }
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(dto.senha());
+        String encryptedPassword = passwordEncoder.encode(dto.senha());
 
         Usuario usuario = new Usuario(dto.email(), encryptedPassword, dto.roles());
         repository.save(usuario);
@@ -100,6 +102,23 @@ public class UsuarioService {
         return mapper.toDetalhesResponseDTO(atualizarStatus(usuario, dto));
     }
 
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarSenha(UUID idUsuario, UsuarioAtualizarSenhaAdminRequestDTO dto) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        return mapper.toDetalhesResponseDTO(atualizarSenha(usuario, dto.senhaNova()));
+    }
+
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarSenha(Authentication authentication, UsuarioAtualizarSenhaRequestDTO dto) {
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+
+        if (!passwordEncoder.matches(dto.senhaAtual(), usuario.getSenha())) {
+            throw new BadCredentialsException("Senha atual inválida.");
+        }
+
+        return mapper.toDetalhesResponseDTO(atualizarSenha(usuario, dto.senhaNova()));
+    }
+
     private Usuario buscarUsuarioPorId(UUID idUsuario) {
         Usuario usuario = repository.findByPublicId(idUsuario);
         if (usuario == null) {
@@ -143,6 +162,22 @@ public class UsuarioService {
         }
 
         usuario.setStatus(dto.status());
+
+        return repository.save(usuario);
+    }
+
+    private Usuario atualizarSenha(Usuario usuario, String senhaNova) {
+        if (senhaNova == null || senhaNova.isBlank()) {
+            throw new RegraNegocioException("Senha nova é obrigatória.");
+        }
+
+        if (passwordEncoder.matches(senhaNova, usuario.getSenha())) {
+            return usuario;
+        }
+
+        String encryptedPassword = passwordEncoder.encode(senhaNova);
+
+        usuario.setSenha(encryptedPassword);
 
         return repository.save(usuario);
     }

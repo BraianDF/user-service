@@ -1,8 +1,6 @@
 package br.com.user_service.controller;
 
-import br.com.user_service.dto.request.UsuarioAtualizarEmailRequestDTO;
-import br.com.user_service.dto.request.UsuarioAtualizarStatusRequestDTO;
-import br.com.user_service.dto.request.UsuarioCadastrarRequestDTO;
+import br.com.user_service.dto.request.*;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
 import br.com.user_service.service.UsuarioService;
@@ -16,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -86,6 +86,19 @@ public class UsuarioController {
     public ResponseEntity<UsuarioDetalhesResponseDTO> atualizarStatus(Authentication authentication, @RequestBody @Valid UsuarioAtualizarStatusRequestDTO dto) {
         UsuarioDetalhesResponseDTO response = service.atualizarStatus(authentication, dto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{idUsuario}/senha")
+    public ResponseEntity atualizarSenha(@PathVariable UUID idUsuario, @RequestBody @Valid UsuarioAtualizarSenhaAdminRequestDTO dto) {
+        UsuarioDetalhesResponseDTO response = service.atualizarSenha(idUsuario, dto);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Senha atualizada com sucesso."));
+    }
+
+    @PatchMapping("/me/senha")
+    public ResponseEntity atualizarSenha(Authentication authentication, @RequestBody @Valid UsuarioAtualizarSenhaRequestDTO dto) {
+        UsuarioDetalhesResponseDTO response = service.atualizarSenha(authentication, dto);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Senha atualizada com sucesso."));
     }
 
 

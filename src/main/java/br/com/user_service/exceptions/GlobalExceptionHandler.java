@@ -182,7 +182,7 @@ public class GlobalExceptionHandler {
         ApiError error = new ApiError(
                 HttpStatus.UNAUTHORIZED.value(),
                 "Erro de autenticação",
-                "Usuário ou senha inválidos"
+                ex.getMessage()
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);

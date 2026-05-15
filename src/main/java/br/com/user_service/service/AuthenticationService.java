@@ -13,6 +13,7 @@ import br.com.user_service.utils.TextoUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +26,14 @@ public class AuthenticationService {
     private final UsuarioRepository repository;
     private final TokenService tokenService;
     private final UsuarioMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationService(AuthenticationManager authenticationManager, UsuarioRepository repository, TokenService tokenService, UsuarioMapper mapper) {
+    public AuthenticationService(AuthenticationManager authenticationManager, UsuarioRepository repository, TokenService tokenService, UsuarioMapper mapper, PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.repository = repository;
         this.tokenService = tokenService;
         this.mapper = mapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -49,7 +52,7 @@ public class AuthenticationService {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
         }
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(dto.senha());
+        String encryptedPassword = passwordEncoder.encode(dto.senha());
 
         Usuario usuario = new Usuario(dto.email(), encryptedPassword, Set.of(Role.USER));
         repository.save(usuario);
