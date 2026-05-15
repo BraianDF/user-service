@@ -5,6 +5,6 @@ import java.util.UUID;
 public record UsuarioListarResponseDTO(
         UUID idUsuario,
         String email,
-        Boolean ativo
+        Boolean status
 ) {
 }

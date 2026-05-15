@@ -1,17 +1,25 @@
 package br.com.user_service.service;
 
+import br.com.user_service.dto.request.*;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
 import br.com.user_service.exceptions.RecursoNaoEncontradoException;
+import br.com.user_service.exceptions.RegraNegocioException;
 import br.com.user_service.mapper.UsuarioMapper;
 import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
+import br.com.user_service.utils.TextoUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -19,10 +27,33 @@ public class UsuarioService {
 
     private final UsuarioMapper mapper;
     private final UsuarioRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioMapper mapper, UsuarioRepository repository) {
+    public UsuarioService(UsuarioMapper mapper, UsuarioRepository repository, PasswordEncoder passwordEncoder) {
         this.mapper = mapper;
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Transactional
+    public UsuarioDetalhesResponseDTO cadastrar(UsuarioCadastrarRequestDTO dto) {
+
+        if (repository.existsByEmail(TextoUtils.normalizarMinusculo(dto.email()))) {
+            throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
+        }
+
+        String encryptedPassword = passwordEncoder.encode(dto.senha());
+
+        Usuario usuario = new Usuario(dto.email(), encryptedPassword, dto.roles());
+        repository.save(usuario);
+
+        return mapper.toDetalhesResponseDTO(usuario);
+    }
+
+    @Transactional
+    public void excluir(UUID idUsuario) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        repository.delete(usuario);
     }
 
     @Transactional(readOnly = true)
@@ -36,15 +67,62 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public UsuarioDetalhesResponseDTO buscarPorId(UUID idUsuario) {
+    public UsuarioDetalhesResponseDTO buscar(UUID idUsuario) {
         Usuario usuario = buscarUsuarioPorId(idUsuario);
         return mapper.toDetalhesResponseDTO(usuario);
     }
 
     @Transactional(readOnly = true)
-    public UsuarioDetalhesResponseDTO buscarPorUsuario(Authentication authentication) {
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+    public UsuarioDetalhesResponseDTO buscar(Authentication authentication) {
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
         return mapper.toDetalhesResponseDTO(usuario);
+    }
+
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarEmail(UUID idUsuario, UsuarioAtualizarEmailRequestDTO dto) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        return mapper.toDetalhesResponseDTO(atualizarEmail(usuario, dto));
+    }
+
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarEmail(Authentication authentication, UsuarioAtualizarEmailRequestDTO dto) {
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+        return mapper.toDetalhesResponseDTO(atualizarEmail(usuario, dto));
+    }
+
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarStatus(UUID idUsuario, UsuarioAtualizarStatusRequestDTO dto) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        return mapper.toDetalhesResponseDTO(atualizarStatus(usuario, dto));
+    }
+
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarStatus(Authentication authentication, UsuarioAtualizarStatusRequestDTO dto) {
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+        return mapper.toDetalhesResponseDTO(atualizarStatus(usuario, dto));
+    }
+
+    @Transactional
+    public void atualizarSenha(UUID idUsuario, UsuarioAtualizarSenhaAdminRequestDTO dto) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        atualizarSenha(usuario, dto.senhaNova());
+    }
+
+    @Transactional
+    public void atualizarSenha(Authentication authentication, UsuarioAtualizarSenhaRequestDTO dto) {
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+
+        if (!passwordEncoder.matches(dto.senhaAtual(), usuario.getSenha())) {
+            throw new BadCredentialsException("Senha atual inválida.");
+        }
+
+        atualizarSenha(usuario, dto.senhaNova());
+    }
+
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarRoles(UUID idUsuario, UsuarioAtualizarRolesRequestDTO dto) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        return mapper.toDetalhesResponseDTO(atualizarRoles(usuario, dto));
     }
 
     private Usuario buscarUsuarioPorId(UUID idUsuario) {
@@ -53,5 +131,74 @@ public class UsuarioService {
             throw new RecursoNaoEncontradoException("Usuário com ID " + idUsuario + " não encontrado.");
         }
         return usuario;
+    }
+
+    private Usuario buscarUsuarioAutenticado(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AuthenticationCredentialsNotFoundException("Usuário não autenticado.");
+        }
+        return (Usuario) authentication.getPrincipal();
+    }
+
+    private Usuario atualizarEmail(Usuario usuario, UsuarioAtualizarEmailRequestDTO dto) {
+        if (dto.email() == null || dto.email().isBlank()) {
+            throw new RegraNegocioException("Email é obrigatório.");
+        }
+
+        if (TextoUtils.equalsNormalizado(usuario.getEmail(), dto.email())) {
+            return usuario;
+        }
+
+        if (repository.existsByEmailAndPublicIdNot(TextoUtils.normalizarMinusculo(dto.email()), usuario.getPublicId())) {
+            throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
+        }
+
+        usuario.setEmail(dto.email());
+
+        return repository.save(usuario);
+    }
+
+    private Usuario atualizarStatus(Usuario usuario, UsuarioAtualizarStatusRequestDTO dto) {
+        if (dto.status() == null) {
+            throw new RegraNegocioException("Status é obrigatório.");
+        }
+
+        if (Objects.equals(usuario.getStatus(), dto.status())) {
+            return usuario;
+        }
+
+        usuario.setStatus(dto.status());
+
+        return repository.save(usuario);
+    }
+
+    private Usuario atualizarSenha(Usuario usuario, String senhaNova) {
+        if (senhaNova == null || senhaNova.isBlank()) {
+            throw new RegraNegocioException("Senha nova é obrigatória.");
+        }
+
+        if (passwordEncoder.matches(senhaNova, usuario.getSenha())) {
+            return usuario;
+        }
+
+        String encryptedPassword = passwordEncoder.encode(senhaNova);
+
+        usuario.setSenha(encryptedPassword);
+
+        return repository.save(usuario);
+    }
+
+    private Usuario atualizarRoles(Usuario usuario, UsuarioAtualizarRolesRequestDTO dto) {
+        if (dto.roles() == null || dto.roles().isEmpty()) {
+            throw new RegraNegocioException("Roles são obrigatórias.");
+        }
+
+        if (Objects.equals(usuario.getRoles(), dto.roles())) {
+            return usuario;
+        }
+
+        usuario.setRoles(dto.roles());
+
+        return repository.save(usuario);
     }
 }

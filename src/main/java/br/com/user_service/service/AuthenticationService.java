@@ -2,15 +2,18 @@ package br.com.user_service.service;
 
 import br.com.user_service.dto.request.LoginRequestDTO;
 import br.com.user_service.dto.response.LoginResponseDTO;
-import br.com.user_service.dto.request.RegisterPublicRequestDTO;
 import br.com.user_service.dto.request.RegisterRequestDTO;
+import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.enums.Role;
 import br.com.user_service.exceptions.RegraNegocioException;
+import br.com.user_service.mapper.UsuarioMapper;
 import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
+import br.com.user_service.utils.TextoUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,16 +25,20 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UsuarioRepository repository;
     private final TokenService tokenService;
+    private final UsuarioMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationService(AuthenticationManager authenticationManager, UsuarioRepository repository, TokenService tokenService) {
+    public AuthenticationService(AuthenticationManager authenticationManager, UsuarioRepository repository, TokenService tokenService, UsuarioMapper mapper, PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.repository = repository;
         this.tokenService = tokenService;
+        this.mapper = mapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
     public LoginResponseDTO login(LoginRequestDTO dto) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(dto.email(), dto.senha());
+        var usernamePassword = new UsernamePasswordAuthenticationToken(TextoUtils.normalizarMinusculo(dto.email()), dto.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((Usuario) auth.getPrincipal());
@@ -39,30 +46,18 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public void register(RegisterPublicRequestDTO dto) {
+    public UsuarioDetalhesResponseDTO register(RegisterRequestDTO dto) {
 
-        if (repository.existsByEmail(dto.email())) {
+        if (repository.existsByEmail(TextoUtils.normalizarMinusculo(dto.email()))) {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
         }
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(dto.senha());
+        String encryptedPassword = passwordEncoder.encode(dto.senha());
 
         Usuario usuario = new Usuario(dto.email(), encryptedPassword, Set.of(Role.USER));
         repository.save(usuario);
+
+        return mapper.toDetalhesResponseDTO(usuario);
     }
-
-    @Transactional
-    public void register(RegisterRequestDTO dto) {
-
-        if (repository.existsByEmail(dto.email())) {
-            throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
-        }
-
-        String encryptedPassword = new BCryptPasswordEncoder().encode(dto.senha());
-
-        Usuario usuario = new Usuario(dto.email(), encryptedPassword, dto.roles());
-        repository.save(usuario);
-    }
-
 
 }
