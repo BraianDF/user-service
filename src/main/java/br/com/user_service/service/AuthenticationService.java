@@ -3,8 +3,10 @@ package br.com.user_service.service;
 import br.com.user_service.dto.request.LoginRequestDTO;
 import br.com.user_service.dto.response.LoginResponseDTO;
 import br.com.user_service.dto.request.RegisterRequestDTO;
+import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.enums.Role;
 import br.com.user_service.exceptions.RegraNegocioException;
+import br.com.user_service.mapper.UsuarioMapper;
 import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,11 +23,13 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UsuarioRepository repository;
     private final TokenService tokenService;
+    private final UsuarioMapper mapper;
 
-    public AuthenticationService(AuthenticationManager authenticationManager, UsuarioRepository repository, TokenService tokenService) {
+    public AuthenticationService(AuthenticationManager authenticationManager, UsuarioRepository repository, TokenService tokenService, UsuarioMapper mapper) {
         this.authenticationManager = authenticationManager;
         this.repository = repository;
         this.tokenService = tokenService;
+        this.mapper = mapper;
     }
 
     @Transactional
@@ -38,7 +42,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public void register(RegisterRequestDTO dto) {
+    public UsuarioDetalhesResponseDTO register(RegisterRequestDTO dto) {
 
         if (repository.existsByEmail(dto.email())) {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
@@ -48,6 +52,8 @@ public class AuthenticationService {
 
         Usuario usuario = new Usuario(dto.email(), encryptedPassword, Set.of(Role.USER));
         repository.save(usuario);
+
+        return mapper.toDetalhesResponseDTO(usuario);
     }
 
 }

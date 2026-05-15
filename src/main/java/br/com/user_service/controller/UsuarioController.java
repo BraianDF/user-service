@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -30,9 +29,9 @@ public class UsuarioController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity cadastrar(@RequestBody @Valid UsuarioCadastrarRequestDTO dto) {
-        service.cadastrar(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Usuário cadastrado com sucesso."));
+    public ResponseEntity<UsuarioDetalhesResponseDTO> cadastrar(@RequestBody @Valid UsuarioCadastrarRequestDTO dto) {
+        UsuarioDetalhesResponseDTO response = service.cadastrar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

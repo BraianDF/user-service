@@ -30,7 +30,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void cadastrar(UsuarioCadastrarRequestDTO dto) {
+    public UsuarioDetalhesResponseDTO cadastrar(UsuarioCadastrarRequestDTO dto) {
 
         if (repository.existsByEmail(dto.email())) {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
@@ -40,6 +40,8 @@ public class UsuarioService {
 
         Usuario usuario = new Usuario(dto.email(), encryptedPassword, dto.roles());
         repository.save(usuario);
+
+        return mapper.toDetalhesResponseDTO(usuario);
     }
 
     @Transactional

@@ -3,6 +3,7 @@ package br.com.user_service.controller;
 import br.com.user_service.dto.request.LoginRequestDTO;
 import br.com.user_service.dto.response.LoginResponseDTO;
 import br.com.user_service.dto.request.RegisterRequestDTO;
+import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -25,15 +26,15 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid LoginRequestDTO dto) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO dto) {
         LoginResponseDTO response = service.login(dto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity registerPublic(@RequestBody @Valid RegisterRequestDTO dto) {
-        service.register(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Usuário cadastrado com sucesso."));
+    public ResponseEntity<UsuarioDetalhesResponseDTO> registerPublic(@RequestBody @Valid RegisterRequestDTO dto) {
+        UsuarioDetalhesResponseDTO response = service.register(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 }
