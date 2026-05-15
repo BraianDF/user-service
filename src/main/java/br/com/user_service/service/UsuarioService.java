@@ -119,6 +119,12 @@ public class UsuarioService {
         atualizarSenha(usuario, dto.senhaNova());
     }
 
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarRoles(UUID idUsuario, UsuarioAtualizarRolesRequestDTO dto) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        return mapper.toDetalhesResponseDTO(atualizarRoles(usuario, dto));
+    }
+
     private Usuario buscarUsuarioPorId(UUID idUsuario) {
         Usuario usuario = repository.findByPublicId(idUsuario);
         if (usuario == null) {
@@ -178,6 +184,20 @@ public class UsuarioService {
         String encryptedPassword = passwordEncoder.encode(senhaNova);
 
         usuario.setSenha(encryptedPassword);
+
+        return repository.save(usuario);
+    }
+
+    private Usuario atualizarRoles(Usuario usuario, UsuarioAtualizarRolesRequestDTO dto) {
+        if (dto.roles() == null || dto.roles().isEmpty()) {
+            throw new RegraNegocioException("Roles são obrigatórias.");
+        }
+
+        if (Objects.equals(usuario.getRoles(), dto.roles())) {
+            return usuario;
+        }
+
+        usuario.setRoles(dto.roles());
 
         return repository.save(usuario);
     }

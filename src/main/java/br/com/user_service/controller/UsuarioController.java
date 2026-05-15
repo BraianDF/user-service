@@ -101,6 +101,10 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Senha atualizada com sucesso."));
     }
 
-
-
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{idUsuario}/roles")
+    public ResponseEntity atualizarRoles(@PathVariable UUID idUsuario, @RequestBody @Valid UsuarioAtualizarRolesRequestDTO dto) {
+        UsuarioDetalhesResponseDTO response = service.atualizarRoles(idUsuario, dto);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }
