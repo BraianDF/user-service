@@ -103,20 +103,20 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioDetalhesResponseDTO atualizarSenha(UUID idUsuario, UsuarioAtualizarSenhaAdminRequestDTO dto) {
+    public void atualizarSenha(UUID idUsuario, UsuarioAtualizarSenhaAdminRequestDTO dto) {
         Usuario usuario = buscarUsuarioPorId(idUsuario);
-        return mapper.toDetalhesResponseDTO(atualizarSenha(usuario, dto.senhaNova()));
+        atualizarSenha(usuario, dto.senhaNova());
     }
 
     @Transactional
-    public UsuarioDetalhesResponseDTO atualizarSenha(Authentication authentication, UsuarioAtualizarSenhaRequestDTO dto) {
+    public void atualizarSenha(Authentication authentication, UsuarioAtualizarSenhaRequestDTO dto) {
         Usuario usuario = buscarUsuarioAutenticado(authentication);
 
         if (!passwordEncoder.matches(dto.senhaAtual(), usuario.getSenha())) {
             throw new BadCredentialsException("Senha atual inválida.");
         }
 
-        return mapper.toDetalhesResponseDTO(atualizarSenha(usuario, dto.senhaNova()));
+        atualizarSenha(usuario, dto.senhaNova());
     }
 
     private Usuario buscarUsuarioPorId(UUID idUsuario) {

@@ -91,13 +91,13 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{idUsuario}/senha")
     public ResponseEntity atualizarSenha(@PathVariable UUID idUsuario, @RequestBody @Valid UsuarioAtualizarSenhaAdminRequestDTO dto) {
-        UsuarioDetalhesResponseDTO response = service.atualizarSenha(idUsuario, dto);
+        service.atualizarSenha(idUsuario, dto);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Senha atualizada com sucesso."));
     }
 
     @PatchMapping("/me/senha")
     public ResponseEntity atualizarSenha(Authentication authentication, @RequestBody @Valid UsuarioAtualizarSenhaRequestDTO dto) {
-        UsuarioDetalhesResponseDTO response = service.atualizarSenha(authentication, dto);
+        service.atualizarSenha(authentication, dto);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Senha atualizada com sucesso."));
     }
 
