@@ -1,5 +1,6 @@
 package br.com.user_service.service;
 
+import br.com.user_service.dto.request.UsuarioAtualizarEmailRequestDTO;
 import br.com.user_service.dto.request.UsuarioCadastrarRequestDTO;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
@@ -41,6 +42,12 @@ public class UsuarioService {
         repository.save(usuario);
     }
 
+    @Transactional
+    public void excluir(UUID idUsuario) {
+        Usuario usuario = buscarUsuarioPorId(idUsuario);
+        repository.delete(usuario);
+    }
+
     @Transactional(readOnly = true)
     public Page<UsuarioListarResponseDTO> listar(Pageable pageable, String email) {
         if (email == null || email.isBlank()) {
@@ -64,9 +71,33 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void excluir(UUID idUsuario) {
+    public UsuarioDetalhesResponseDTO atualizarEmail(UUID idUsuario, UsuarioAtualizarEmailRequestDTO dto) {
         Usuario usuario = buscarUsuarioPorId(idUsuario);
-        repository.delete(usuario);
+        return mapper.toDetalhesResponseDTO(atualizarEmail(usuario, dto));
+    }
+
+    @Transactional
+    public UsuarioDetalhesResponseDTO atualizarEmail(Authentication authentication, UsuarioAtualizarEmailRequestDTO dto) {
+        Usuario usuario = buscarUsuarioAutenticado(authentication);
+        return mapper.toDetalhesResponseDTO(atualizarEmail(usuario, dto));
+    }
+
+    private Usuario atualizarEmail(Usuario usuario, UsuarioAtualizarEmailRequestDTO dto) {
+        if (dto.email() == null || dto.email().isBlank()) {
+            throw new RegraNegocioException("Email é obrigatório.");
+        }
+
+        if (usuario.getEmail().equals(dto.email())) {
+            return usuario;
+        }
+
+        if (repository.existsByEmailAndPublicIdNot(dto.email(), usuario.getPublicId())) {
+            throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
+        }
+
+        usuario.setEmail(dto.email());
+
+        return repository.save(usuario);
     }
 
     private Usuario buscarUsuarioPorId(UUID idUsuario) {

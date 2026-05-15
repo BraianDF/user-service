@@ -1,5 +1,6 @@
 package br.com.user_service.controller;
 
+import br.com.user_service.dto.request.UsuarioAtualizarEmailRequestDTO;
 import br.com.user_service.dto.request.UsuarioCadastrarRequestDTO;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
@@ -35,6 +36,13 @@ public class UsuarioController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{idUsuario}")
+    public ResponseEntity<Void> excluir(@PathVariable UUID idUsuario) {
+        service.excluir(idUsuario);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<UsuarioListarResponseDTO>> listar(@PageableDefault(page = 0, size = 10, sort = "email", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(defaultValue = "") String email) {
         Page<UsuarioListarResponseDTO> response = service.listar(pageable, email);
@@ -55,10 +63,16 @@ public class UsuarioController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{idUsuario}")
-    public ResponseEntity<Void> excluir(@PathVariable UUID idUsuario) {
-        service.excluir(idUsuario);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @PatchMapping("/{idUsuario}/email")
+    public ResponseEntity<UsuarioDetalhesResponseDTO> atualizarEmail(@PathVariable UUID idUsuario, @RequestBody @Valid UsuarioAtualizarEmailRequestDTO dto) {
+        UsuarioDetalhesResponseDTO response = service.atualizarEmail(idUsuario, dto);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PatchMapping("/me/email")
+    public ResponseEntity<UsuarioDetalhesResponseDTO> atualizarEmail(Authentication authentication, @RequestBody @Valid UsuarioAtualizarEmailRequestDTO dto) {
+        UsuarioDetalhesResponseDTO response = service.atualizarEmail(authentication, dto);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 

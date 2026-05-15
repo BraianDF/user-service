@@ -12,5 +12,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     UserDetails findByEmail(String email);
     Usuario findByPublicId(UUID publicId);
     boolean existsByEmail(String email);
+    boolean existsByEmailAndPublicIdNot(String email, UUID publicId);
     Page<Usuario> findByEmailContainingIgnoreCase(String email, Pageable pageable);
 }
