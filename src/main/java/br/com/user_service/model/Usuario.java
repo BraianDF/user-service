@@ -1,6 +1,7 @@
 package br.com.user_service.model;
 
 import br.com.user_service.enums.Role;
+import br.com.user_service.utils.TextoUtils;
 import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,13 +42,13 @@ public class Usuario implements UserDetails, Serializable {
 
     public Usuario(Long idUsuario, String email, String senha, Set<Role> roles) {
         this.idUsuario = idUsuario;
-        this.email = email;
+        this.email = TextoUtils.normalizarMinusculo(email);
         this.senha = senha;
         this.roles = roles;
     }
 
     public Usuario(String email, String senha, Set<Role> roles) {
-        this.email = email;
+        this.email = TextoUtils.normalizarMinusculo(email);
         this.senha = senha;
         this.roles = roles;
     }
@@ -92,7 +93,7 @@ public class Usuario implements UserDetails, Serializable {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.email = TextoUtils.normalizarMinusculo(email);
     }
 
     public String getSenha() {

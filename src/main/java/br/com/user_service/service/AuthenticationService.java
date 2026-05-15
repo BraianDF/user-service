@@ -9,6 +9,7 @@ import br.com.user_service.exceptions.RegraNegocioException;
 import br.com.user_service.mapper.UsuarioMapper;
 import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
+import br.com.user_service.utils.TextoUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,7 +35,7 @@ public class AuthenticationService {
 
     @Transactional
     public LoginResponseDTO login(LoginRequestDTO dto) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(dto.email(), dto.senha());
+        var usernamePassword = new UsernamePasswordAuthenticationToken(TextoUtils.normalizarMinusculo(dto.email()), dto.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((Usuario) auth.getPrincipal());
@@ -44,7 +45,7 @@ public class AuthenticationService {
     @Transactional
     public UsuarioDetalhesResponseDTO register(RegisterRequestDTO dto) {
 
-        if (repository.existsByEmail(dto.email())) {
+        if (repository.existsByEmail(TextoUtils.normalizarMinusculo(dto.email()))) {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
         }
 

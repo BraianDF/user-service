@@ -9,6 +9,7 @@ import br.com.user_service.exceptions.RegraNegocioException;
 import br.com.user_service.mapper.UsuarioMapper;
 import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
+import br.com.user_service.utils.TextoUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -32,7 +33,7 @@ public class UsuarioService {
     @Transactional
     public UsuarioDetalhesResponseDTO cadastrar(UsuarioCadastrarRequestDTO dto) {
 
-        if (repository.existsByEmail(dto.email())) {
+        if (repository.existsByEmail(TextoUtils.normalizarMinusculo(dto.email()))) {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
         }
 
@@ -89,11 +90,11 @@ public class UsuarioService {
             throw new RegraNegocioException("Email é obrigatório.");
         }
 
-        if (usuario.getEmail().equals(dto.email())) {
+        if (TextoUtils.equalsNormalizado(usuario.getEmail(), dto.email())) {
             return usuario;
         }
 
-        if (repository.existsByEmailAndPublicIdNot(dto.email(), usuario.getPublicId())) {
+        if (repository.existsByEmailAndPublicIdNot(TextoUtils.normalizarMinusculo(dto.email()), usuario.getPublicId())) {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
         }
 
