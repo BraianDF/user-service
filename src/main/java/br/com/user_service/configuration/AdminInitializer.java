@@ -38,7 +38,7 @@ public class AdminInitializer implements CommandLineRunner {
 
         System.out.println("USER-SERVICE: Admin criado anteriormente.");
 
-        if (usuario.getStatus()) {
+        if (Boolean.TRUE.equals(usuario.getStatus())) {
             System.out.println("USER-SERVICE: Admin está ativo.");
             return;
         }
