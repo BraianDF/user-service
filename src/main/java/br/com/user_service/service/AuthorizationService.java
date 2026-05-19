@@ -1,5 +1,6 @@
 package br.com.user_service.service;
 
+import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,8 +17,13 @@ public class AuthorizationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //System.out.println("Carregando usuário: " + username);
-        return repository.findByEmail(username);
+        Usuario usuario = repository.findByEmail(username);
+
+        if (usuario == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+
+        return usuario;
     }
 
 
