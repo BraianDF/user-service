@@ -23,7 +23,7 @@ public class Usuario implements UserDetails, Serializable {
     @Column(name = "publicId", nullable = false, unique = true, updatable = false)
     private UUID publicId;
 
-    @Column(name = "email", length = 100, nullable = false)
+    @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
     @Column(name = "senha", length = 100, nullable = false)

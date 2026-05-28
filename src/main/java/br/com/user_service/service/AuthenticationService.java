@@ -10,6 +10,7 @@ import br.com.user_service.mapper.UsuarioMapper;
 import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
 import br.com.user_service.utils.TextoUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -52,12 +53,18 @@ public class AuthenticationService {
             throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
         }
 
-        String encryptedPassword = passwordEncoder.encode(dto.senha());
+        try {
+            String encryptedPassword = passwordEncoder.encode(dto.senha());
 
-        Usuario usuario = new Usuario(dto.email(), encryptedPassword, Set.of(Role.USER));
-        repository.save(usuario);
+            Usuario usuario = new Usuario(dto.email(), encryptedPassword, Set.of(Role.USER));
+            repository.save(usuario);
 
-        return mapper.toDetalhesResponseDTO(usuario);
+            return mapper.toDetalhesResponseDTO(usuario);
+
+        } catch (DataIntegrityViolationException e) {
+            throw new RegraNegocioException("Este e-mail já está sendo utilizado.");
+        }
+
     }
 
 }
