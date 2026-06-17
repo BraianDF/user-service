@@ -40,14 +40,37 @@ public class AdminInitializer implements CommandLineRunner {
 
         System.out.println("USER-SERVICE: Admin criado anteriormente.");
 
+        boolean alterado = false;
+
         if (Boolean.TRUE.equals(usuario.getStatus())) {
             System.out.println("USER-SERVICE: Admin está ativo.");
+        } else {
+            usuario.setStatus(true);
+            System.out.println("USER-SERVICE: Admin ativado.");
+            alterado = true;
         }
 
-        usuario.setStatus(true);
-        repository.save(usuario);
+        if (passwordEncoder.matches(senha, usuario.getSenha())) {
+            System.out.println("USER-SERVICE: Não houve alteração na senha do Admin.");
+        } else {
+            String encryptedPassword = passwordEncoder.encode(senha);
+            usuario.setSenha(encryptedPassword);
+            System.out.println("USER-SERVICE: Senha do Admin resetada com sucesso.");
+            alterado = true;
+        }
 
-        System.out.println("USER-SERVICE: Admin ativado.");
+        if (usuario.getRoles().contains(Role.ADMIN)) {
+            System.out.println("USER-SERVICE: Não houve alteração na permissão do Admin.");
+        } else {
+            usuario.adicionarRole(Role.ADMIN);
+            System.out.println("USER-SERVICE: Permissões do Admin resetada com sucesso.");
+            alterado = true;
+        }
+
+        if (alterado) {
+            repository.save(usuario);
+        }
+
     }
 
     private void criarAdmin() {
