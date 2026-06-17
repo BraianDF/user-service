@@ -69,7 +69,7 @@ public class UsuarioService {
             return repository.findAll(pageable)
                     .map(mapper::toListarResponseDTO);
         }
-        return repository.findByEmailContainingIgnoreCase(email, pageable)
+        return repository.findByEmailContainingIgnoreCase(TextoUtils.normalizarMinusculo(email), pageable)
                 .map(mapper::toListarResponseDTO);
     }
 
