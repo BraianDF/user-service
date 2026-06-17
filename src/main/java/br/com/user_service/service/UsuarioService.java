@@ -131,11 +131,8 @@ public class UsuarioService {
     }
 
     private Usuario buscarUsuarioPorId(UUID idUsuario) {
-        Usuario usuario = repository.findByPublicId(idUsuario);
-        if (usuario == null) {
-            throw new RecursoNaoEncontradoException("Usuário com ID " + idUsuario + " não encontrado.");
-        }
-        return usuario;
+        return repository.findByPublicId(idUsuario)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário com ID " + idUsuario + " não encontrado."));
     }
 
     private Usuario buscarUsuarioAutenticado(Authentication authentication) {

@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -33,12 +34,14 @@ public class AdminInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        Usuario usuario = repository.findByEmail(email);
+        Optional<Usuario> usuarioOpt = repository.findByEmail(email);
 
-        if (usuario == null) {
+        if (usuarioOpt.isEmpty()) {
             criarAdmin();
             return;
         }
+
+        Usuario usuario = usuarioOpt.get();
 
         log.info("Admin criado anteriormente.");
 
