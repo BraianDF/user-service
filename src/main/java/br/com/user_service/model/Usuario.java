@@ -1,7 +1,7 @@
 package br.com.user_service.model;
 
 import br.com.user_service.enums.Role;
-import br.com.user_service.utils.TextoUtils;
+import br.com.utils.TextoUtils;
 import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,7 +23,7 @@ public class Usuario implements UserDetails, Serializable {
     @Column(name = "publicId", nullable = false, unique = true, updatable = false)
     private UUID publicId;
 
-    @Column(name = "email", length = 100, nullable = false)
+    @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
     @Column(name = "senha", length = 100, nullable = false)

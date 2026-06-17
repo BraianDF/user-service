@@ -1,4 +1,4 @@
-package br.com.user_service.utils;
+package br.com.utils;
 
 import java.text.Normalizer;
 

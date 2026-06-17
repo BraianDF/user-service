@@ -1,4 +1,4 @@
-package br.com.user_service.exceptions;
+package br.com.exceptions;
 
 import java.time.LocalDateTime;
 

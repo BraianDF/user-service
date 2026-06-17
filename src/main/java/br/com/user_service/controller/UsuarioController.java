@@ -103,7 +103,7 @@ public class UsuarioController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{idUsuario}/roles")
-    public ResponseEntity atualizarRoles(@PathVariable UUID idUsuario, @RequestBody @Valid UsuarioAtualizarRolesRequestDTO dto) {
+    public ResponseEntity<UsuarioDetalhesResponseDTO> atualizarRoles(@PathVariable UUID idUsuario, @RequestBody @Valid UsuarioAtualizarRolesRequestDTO dto) {
         UsuarioDetalhesResponseDTO response = service.atualizarRoles(idUsuario, dto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

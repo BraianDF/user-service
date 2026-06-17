@@ -1,4 +1,4 @@
-package br.com.user_service.configuration;
+package br.com.configuration;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
