@@ -3,13 +3,12 @@ package br.com.user_service.service;
 import br.com.user_service.dto.request.*;
 import br.com.user_service.dto.response.UsuarioDetalhesResponseDTO;
 import br.com.user_service.dto.response.UsuarioListarResponseDTO;
-import br.com.user_service.enums.Role;
-import br.com.user_service.exceptions.RecursoNaoEncontradoException;
-import br.com.user_service.exceptions.RegraNegocioException;
+import br.com.exceptions.RecursoNaoEncontradoException;
+import br.com.exceptions.RegraNegocioException;
 import br.com.user_service.mapper.UsuarioMapper;
 import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
-import br.com.user_service.utils.TextoUtils;
+import br.com.utils.TextoUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Service

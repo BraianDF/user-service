@@ -1,7 +1,7 @@
 package br.com.user_service.model;
 
 import br.com.user_service.enums.Role;
-import br.com.user_service.utils.TextoUtils;
+import br.com.utils.TextoUtils;
 import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;

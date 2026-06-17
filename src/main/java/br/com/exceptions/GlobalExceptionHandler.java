@@ -1,4 +1,4 @@
-package br.com.user_service.exceptions;
+package br.com.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;

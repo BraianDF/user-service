@@ -1,7 +1,8 @@
 package br.com.user_service.configuration;
 
+import br.com.configuration.CustomAccessDeniedHandler;
+import br.com.configuration.CustomAuthenticationEntryPoint;
 import br.com.user_service.filter.SecurityFilter;
-import br.com.user_service.enums.Role;
 import br.com.user_service.service.AuthorizationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
