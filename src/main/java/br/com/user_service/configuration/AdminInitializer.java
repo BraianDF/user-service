@@ -15,6 +15,7 @@ import java.util.Set;
 public class AdminInitializer implements CommandLineRunner {
 
     private final UsuarioRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${api.security.admin.email}")
     private String email;
@@ -22,8 +23,9 @@ public class AdminInitializer implements CommandLineRunner {
     @Value("${api.security.admin.password}")
     private String senha;
 
-    public AdminInitializer(UsuarioRepository repository) {
+    public AdminInitializer(UsuarioRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -40,7 +42,6 @@ public class AdminInitializer implements CommandLineRunner {
 
         if (Boolean.TRUE.equals(usuario.getStatus())) {
             System.out.println("USER-SERVICE: Admin está ativo.");
-            return;
         }
 
         usuario.setStatus(true);
@@ -50,7 +51,7 @@ public class AdminInitializer implements CommandLineRunner {
     }
 
     private void criarAdmin() {
-        String encryptedPassword = new BCryptPasswordEncoder().encode(senha);
+        String encryptedPassword = passwordEncoder.encode(senha);
 
         Usuario novoUsuario = new Usuario(email, encryptedPassword, Set.of(Role.ADMIN));
 
