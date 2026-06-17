@@ -27,6 +27,17 @@ Authorization: Bearer SEU_TOKEN
 | EDITOR    | Pode editar conteúdos    |
 | VIEWER    | Apenas visualização      |
 
+### Endpoints Públicos
+
+Os seguintes endpoints podem ser acessados sem autenticação:
+
+| Método | Endpoint            | Descrição                     |
+|---------|--------------------|-------------------------------|
+| GET     | /auth/login        | Autenticação de usuário       |
+| POST    | /auth/register     | Cadastro público              |
+| GET     | /actuator/health   | Verificação de saúde da API   |
+| GET     | /actuator/info     | Informações da aplicação      |
+
 ---
 
 ## Padrão de Erro
@@ -58,6 +69,93 @@ Todas as respostas de erro seguem o formato:
 | 409    | Violação de regra de negócio     | Regra da aplicação violada        |
 | 409    | Violação de integridade de dados | Restrição do banco                |
 | 500    | Erro interno do servidor         | Erro inesperado                   |
+
+---
+
+# Monitoramento
+
+Endpoints utilizados para monitoramento da aplicação.
+
+## Health Check
+
+Retorna o estado geral da aplicação.
+
+### Endpoint
+
+```http
+GET /actuator/health
+```
+
+### Permissão
+
+Pública
+
+### Descrição
+
+Este endpoint é utilizado por ferramentas de monitoramento, balanceadores de carga e orquestradores (Docker, Kubernetes, etc.) para verificar se a aplicação está disponível.
+
+Como a configuração:
+
+```properties
+management.endpoint.health.show-details=never
+```
+
+está habilitada, apenas o status geral da aplicação é retornado.
+
+### Response 200 - Aplicação saudável
+
+```json
+{
+  "status": "UP"
+}
+```
+
+### Possíveis Respostas
+
+| Código | Descrição                    |
+|---------|-----------------------------|
+| 200     | Aplicação disponível        |
+| 503     | Aplicação indisponível      |
+
+---
+
+## Informações da Aplicação
+
+Retorna informações públicas da aplicação.
+
+### Endpoint
+
+```http
+GET /actuator/info
+```
+
+### Permissão
+
+Pública
+
+### Descrição
+
+Este endpoint disponibiliza informações institucionais da aplicação configuradas através do Spring Boot Actuator.
+
+As informações retornadas dependem das propriedades configuradas no projeto.
+
+### Exemplo de Response 200
+
+```json
+{
+  "app": {
+    "name": "user-service",
+    "version": "1.0.0",
+    "description": "Servico de gerenciamento de usuarios"
+  }
+}
+```
+
+### Possíveis Respostas
+
+| Código | Descrição                          |
+|---------|------------------------------------|
+| 200     | Informações retornadas com sucesso |
 
 ---
 

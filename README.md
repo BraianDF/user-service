@@ -109,9 +109,7 @@ A aplicação utiliza o Spring Security integrado com JWT para garantir:
 
 A documentação completa dos endpoints encontra-se no arquivo:
 
-```text
-docs/API.md
-```
+[Documentação da API](docs/API.md)
 
 Neste documento estão descritos:
 
