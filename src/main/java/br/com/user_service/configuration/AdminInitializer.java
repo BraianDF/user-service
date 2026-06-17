@@ -3,9 +3,10 @@ package br.com.user_service.configuration;
 import br.com.user_service.enums.Role;
 import br.com.user_service.model.Usuario;
 import br.com.user_service.repository.UsuarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ public class AdminInitializer implements CommandLineRunner {
 
     private final UsuarioRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private static final Logger log = LoggerFactory.getLogger(AdminInitializer.class);
 
     @Value("${api.security.admin.email}")
     private String email;
@@ -38,32 +40,32 @@ public class AdminInitializer implements CommandLineRunner {
             return;
         }
 
-        System.out.println("USER-SERVICE: Admin criado anteriormente.");
+        log.info("Admin criado anteriormente.");
 
         boolean alterado = false;
 
         if (Boolean.TRUE.equals(usuario.getStatus())) {
-            System.out.println("USER-SERVICE: Admin está ativo.");
+            log.info("Admin está ativo.");
         } else {
             usuario.setStatus(true);
-            System.out.println("USER-SERVICE: Admin ativado.");
+            log.warn("Admin ativado.");
             alterado = true;
         }
 
         if (passwordEncoder.matches(senha, usuario.getSenha())) {
-            System.out.println("USER-SERVICE: Não houve alteração na senha do Admin.");
+            log.info("Não houve alteração na senha do Admin.");
         } else {
             String encryptedPassword = passwordEncoder.encode(senha);
             usuario.setSenha(encryptedPassword);
-            System.out.println("USER-SERVICE: Senha do Admin resetada com sucesso.");
+            log.warn("Senha do Admin resetada com sucesso.");
             alterado = true;
         }
 
         if (usuario.getRoles().contains(Role.ADMIN)) {
-            System.out.println("USER-SERVICE: Não houve alteração na permissão do Admin.");
+            log.info("Não houve alteração na permissão do Admin.");
         } else {
             usuario.adicionarRole(Role.ADMIN);
-            System.out.println("USER-SERVICE: Permissões do Admin resetada com sucesso.");
+            log.warn("Permissões do Admin resetada com sucesso.");
             alterado = true;
         }
 
@@ -80,6 +82,6 @@ public class AdminInitializer implements CommandLineRunner {
 
         repository.save(novoUsuario);
 
-        System.out.println("USER-SERVICE: Admin criado com sucesso.");
+        log.info("Admin criado com sucesso.");
     }
 }
