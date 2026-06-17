@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>br.com</groupId>
 	<artifactId>user-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>user-service</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Servico de gerenciamento de usuarios</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -148,6 +148,14 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
