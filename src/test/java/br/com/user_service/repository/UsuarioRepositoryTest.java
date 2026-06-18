@@ -25,7 +25,7 @@ class UsuarioRepositoryTest {
     EntityManager entityManager;
 
     @Test
-    @DisplayName("Deverá obter o usuário com sucesso do banco de dados")
+    @DisplayName("Deve obter o usuário com sucesso do BD")
     void findByEmailSucesso() {
         // Arrange (preparação)
         String email = "joao123@email.com";
@@ -41,7 +41,7 @@ class UsuarioRepositoryTest {
     }
 
     @Test
-    @DisplayName("Não deverá obter o usuário do banco de dados quando não existir")
+    @DisplayName("Não deve obter o usuário do BD quando o usuário não existir")
     void findByEmailErro() {
         // Arrange (preparação)
         String email = "joao123@email.com";
