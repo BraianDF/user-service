@@ -14,14 +14,14 @@ class TokenServiceTest {
 
     private TokenService tokenService;
 
+    private static final String SECRET = "minha-chave-secreta";
+    private static final String ISSUER = "user-service";
+
     @BeforeEach
     void setUp() {
         tokenService = new TokenService();
-        ReflectionTestUtils.setField(
-                tokenService,
-                "secret",
-                "minha-chave-secreta"
-        );
+        ReflectionTestUtils.setField(tokenService,"secret",SECRET);
+        ReflectionTestUtils.setField(tokenService,"service",ISSUER);
     }
 
     @Test
@@ -76,6 +76,27 @@ class TokenServiceTest {
         // Arrange (preparação)
         TokenService outroService = new TokenService();
         ReflectionTestUtils.setField(outroService,"secret","outra-chave");
+        ReflectionTestUtils.setField(outroService,"service",ISSUER);
+
+        Usuario usuario = new Usuario("joao@email.com", "123456",Set.of(Role.USER));
+        usuario.setPublicId(UUID.randomUUID());
+
+        String token = outroService.generateToken(usuario);
+
+        // Act (ação)
+        String resultado = tokenService.validateToken(token);
+
+        // Assert (validação)
+        assertEquals("", resultado);
+    }
+
+    @Test
+    @DisplayName("Deve retornar vazio quando token possuir issuer diferente")
+    void validateTokenErro3() {
+        // Arrange (preparação)
+        TokenService outroService = new TokenService();
+        ReflectionTestUtils.setField(outroService,"secret",SECRET);
+        ReflectionTestUtils.setField(outroService,"service","outro-service");
 
         Usuario usuario = new Usuario("joao@email.com", "123456",Set.of(Role.USER));
         usuario.setPublicId(UUID.randomUUID());
