@@ -17,11 +17,14 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
+    @Value("${info.app.name}")
+    private String service;
+
     public String generateToken(Usuario usuario) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             String token = JWT.create()
-                    .withIssuer("user-service") //nome da aplicação
+                    .withIssuer(service) //nome da aplicação
                     .withJWTId(UUID.randomUUID().toString()) //id do token
                     .withIssuedAt(Instant.now()) //quando o token foi gerado
                     .withExpiresAt(genExpirationDate(usuario.getDuracaoToken())) //tempo de expiração do token
@@ -38,7 +41,7 @@ public class TokenService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)
-                    .withIssuer("user-service")
+                    .withIssuer(service)
                     .build()
                     .verify(token)
                     .getSubject();
