@@ -2,6 +2,7 @@ package br.com.user_service.filter;
 
 import br.com.user_service.repository.UsuarioRepository;
 import br.com.user_service.service.TokenService;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,13 +30,20 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var token = this.recoverToken(request);
         if (token != null) {
-            var subject = tokenService.validateToken(token);
+            try {
+                var subject = tokenService.validateToken(token);
 
-            usuarioRepository.findByPublicId(UUID.fromString(subject))
-                    .ifPresent(user -> {
-                        var authentication = new UsernamePasswordAuthenticationToken(user,null, user.getAuthorities());
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    });
+                UUID userId = UUID.fromString(subject);
+
+
+                usuarioRepository.findByPublicId(UUID.fromString(subject))
+                        .ifPresent(user -> {
+                            var authentication = new UsernamePasswordAuthenticationToken(user,null, user.getAuthorities());
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                        });
+            } catch (JWTVerificationException | IllegalArgumentException e) {
+                // token inválido → segue request como anônimo
+            }
         }
         filterChain.doFilter(request, response);
     }
