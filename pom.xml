@@ -77,21 +77,6 @@
 
 		<!-- Spring Web -->
 
-		<!-- H2 Database -->
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-h2console</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
-		<!-- H2 Database -->
-
 		<!-- Spring Security -->
 
 		<dependency>
@@ -125,6 +110,21 @@
 		</dependency>
 
 		<!-- Postgres -->
+
+		<!-- H2 Database -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-h2console</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- H2 Database -->
 
 		<!-- Actuator -->
 
