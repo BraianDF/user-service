@@ -45,13 +45,17 @@ public class Usuario implements UserDetails, Serializable {
         this.idUsuario = idUsuario;
         this.email = TextoUtils.normalizarMinusculo(email);
         this.senha = senha;
-        this.roles = roles;
+        this.roles = roles == null
+                ? new HashSet<>()
+                : new HashSet<>(roles);
     }
 
     public Usuario(String email, String senha, Set<Role> roles) {
         this.email = TextoUtils.normalizarMinusculo(email);
         this.senha = senha;
-        this.roles = roles;
+        this.roles = roles == null
+                ? new HashSet<>()
+                : new HashSet<>(roles);
     }
 
     @PrePersist
@@ -86,7 +90,9 @@ public class Usuario implements UserDetails, Serializable {
     }
 
     public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+        this.roles = roles == null
+                ? new HashSet<>()
+                : new HashSet<>(roles);
     }
 
     public String getEmail() {
