@@ -2,6 +2,7 @@ package br.com.user_service.service;
 
 import br.com.user_service.enums.Role;
 import br.com.user_service.model.Usuario;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,20 +59,22 @@ class TokenServiceTest {
     }
 
     @Test
-    @DisplayName("Deve retornar vazio quando token for inválido")
+    @DisplayName("Deve lançar exceção quando token for inválido")
     void validateTokenErro1() {
         // Arrange (preparação)
         String tokenInvalido = "token.invalido.aqui";
 
-        // Act (ação)
-        String resultado = tokenService.validateToken(tokenInvalido);
+        // Act & Assert
+        JWTVerificationException exception = assertThrows(
+                JWTVerificationException.class,
+                () -> tokenService.validateToken(tokenInvalido)
+        );
 
-        // Assert (validação)
-        assertEquals("", resultado);
+        assertEquals("Token inválido ou expirado", exception.getMessage());
     }
 
     @Test
-    @DisplayName("Deve retornar vazio quando token for assinado com outra chave")
+    @DisplayName("Deve lançar exceção quando token for assinado com outra chave")
     void validateTokenErro2() {
         // Arrange (preparação)
         TokenService outroService = new TokenService();
@@ -83,15 +86,17 @@ class TokenServiceTest {
 
         String token = outroService.generateToken(usuario);
 
-        // Act (ação)
-        String resultado = tokenService.validateToken(token);
+        // Act & Assert
+        JWTVerificationException exception = assertThrows(
+                JWTVerificationException.class,
+                () -> tokenService.validateToken(token)
+        );
 
-        // Assert (validação)
-        assertEquals("", resultado);
+        assertEquals("Token inválido ou expirado", exception.getMessage());
     }
 
     @Test
-    @DisplayName("Deve retornar vazio quando token possuir issuer diferente")
+    @DisplayName("Deve lançar exceção quando token possuir issuer diferente")
     void validateTokenErro3() {
         // Arrange (preparação)
         TokenService outroService = new TokenService();
@@ -103,10 +108,12 @@ class TokenServiceTest {
 
         String token = outroService.generateToken(usuario);
 
-        // Act (ação)
-        String resultado = tokenService.validateToken(token);
+        // Act & Assert
+        JWTVerificationException exception = assertThrows(
+                JWTVerificationException.class,
+                () -> tokenService.validateToken(token)
+        );
 
-        // Assert (validação)
-        assertEquals("", resultado);
+        assertEquals("Token inválido ou expirado", exception.getMessage());
     }
 }
